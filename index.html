@@ -22,7 +22,6 @@
         #login-form button { padding: 8px 15px; border: none; background-color: #28a745; color: white; border-radius: 5px; cursor: pointer; }
         .nav-buttons button { margin-right: 10px; padding: 8px 15px; border: none; background-color: #6c757d; color: white; border-radius: 5px; cursor: pointer; }
         #attempts-info { font-size: 0.9em; color: #666; margin-top: 10px; }
-        /* 字體大小調整按鈕 */
         .font-size-controls { text-align: right; margin-bottom: 10px; }
         .font-size-controls button { padding: 5px 10px; cursor: pointer; border: 1px solid #ccc; background: #f9f9f9; border-radius: 4px; }
         .font-size-controls button.active { background-color: #007bff; color: white; }
@@ -72,7 +71,7 @@
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzkhhV9y6iHlWY14V4ucYNqNkkYJ5LAbfi8nEhF9vX7E8O-rs05P5d4qfnh47QibyFx/exec";
+        const WEB_APP_URL = "YOUR_WEB_APP_URL_HERE";
 
         let questions = [];
         let username = '';
@@ -128,7 +127,6 @@
             fetchRanking();
         }
 
-        // 調整字體大小功能
         function setFontSize(size) {
             document.querySelectorAll('.font-size-controls button').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`.font-size-controls button[onclick="setFontSize('${size}')"]`).classList.add('active');
@@ -193,6 +191,7 @@
             });
         }
 
+        // --- 修正後的 showQuestion 函式 ---
         function showQuestion(question) {
             questionsView.style.display = 'none';
             rankingView.style.display = 'none';
@@ -211,8 +210,8 @@
                 textarea.cols = 50;
                 textarea.id = 'answer-textarea';
                 optionsContainer.appendChild(textarea);
-            } else {
-                for (let i = 1; i <= 5; i++) { // 這裡修改為最多 5 個選項
+            } else if (question['題型'] === '單選') {
+                for (let i = 1; i <= 5; i++) {
                     const optionKey = `選項${i}`;
                     const optionValue = question[optionKey];
                     if (optionValue) {
@@ -221,15 +220,29 @@
                         const label = document.createElement('label');
                         const optionLetter = String.fromCharCode(64 + i);
 
-                        if (question['題型'] === '單選') {
-                            input.type = 'radio';
-                            input.name = 'answer';
-                            input.value = optionLetter;
-                        } else if (question['題型'] === '多選') {
-                            input.type = 'checkbox';
-                            input.name = 'answer';
-                            input.value = optionLetter;
-                        }
+                        input.type = 'radio';
+                        input.name = 'answer';
+                        input.value = optionLetter;
+                        
+                        label.textContent = `${optionLetter}. ${optionValue}`;
+                        label.prepend(input);
+                        optionDiv.appendChild(label);
+                        optionsContainer.appendChild(optionDiv);
+                    }
+                }
+            } else if (question['題型'] === '多選') {
+                 for (let i = 1; i <= 5; i++) {
+                    const optionKey = `選項${i}`;
+                    const optionValue = question[optionKey];
+                    if (optionValue) {
+                        const optionDiv = document.createElement('div');
+                        const input = document.createElement('input');
+                        const label = document.createElement('label');
+                        const optionLetter = String.fromCharCode(64 + i);
+
+                        input.type = 'checkbox';
+                        input.name = 'answer';
+                        input.value = optionLetter;
                         
                         label.textContent = `${optionLetter}. ${optionValue}`;
                         label.prepend(input);
@@ -242,6 +255,7 @@
             submitBtn.disabled = attemptsLeft <= 0;
             submitBtn.textContent = submitBtn.disabled ? '已無作答次數' : '提交答案';
         }
+        // --- 修正後的 showQuestion 函式結束 ---
 
         function submitAnswer() {
             if (!currentQuestion) return;
@@ -275,13 +289,11 @@
             }).then(result => {
                 if (result.success) {
                     alert(`作答成功！你獲得了 ${result.score} 分。你的總分為: ${result.totalScore}`);
-                    // 更新前端狀態
                     userStatus.attempts[currentQuestion['題號']] = (userStatus.attempts[currentQuestion['題號']] || 0) + 1;
                     userStatus.responses[currentQuestion['題號']] = userStatus.responses[currentQuestion['題號']] || {};
                     userStatus.responses[currentQuestion['題號']].score = result.score;
                     userStatus.totalScore = result.totalScore;
                     
-                    // 更新介面
                     const attemptsLeft = currentQuestion['作答次數限制'] - userStatus.attempts[currentQuestion['題號']];
                     attemptsInfo.textContent = `剩餘作答次數: ${attemptsLeft}`;
                     submitBtn.disabled = attemptsLeft <= 0;
