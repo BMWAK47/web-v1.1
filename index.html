@@ -19,7 +19,7 @@
         #submit-btn { padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
         #login-form { text-align: center; }
         #login-form input { padding: 8px; margin-top: 10px; border-radius: 5px; border: 1px solid #ccc; }
-        #login-form button { padding: 8px 15px; border: none; background-color: #28a745; color: white; border-radius: 5px; cursor: pointer; }
+        #login-form button { padding: 8px 15px; border: none; background-color: #28a745; color: white; border-radius: 5-px; cursor: pointer; }
         .nav-buttons button { margin-right: 10px; padding: 8px 15px; border: none; background-color: #6c757d; color: white; border-radius: 5px; cursor: pointer; }
         #attempts-info { font-size: 0.9em; color: #666; margin-top: 10px; }
         .font-size-controls { text-align: right; margin-bottom: 10px; }
@@ -90,7 +90,7 @@
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzkhhV9y6iHlWY14V4ucYNqNkkYJ5LAbfi8nEhF9vX7E8O-rs05P5d4qfnh47QibyFx/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzkhhV9y6iHlWY14V4ucYNqNkkYJ5LAbfi8nEhF9vX7E8O-rs05P5d4qfnh47QibyFx/exec"; // 請務必在此處替換為你的網頁應用程式 URL
 
         let questions = [];
         let username = '';
@@ -101,47 +101,49 @@
         const mainQuizSection = document.getElementById('main-quiz-section');
         const loginForm = document.getElementById('login-form');
         const usernameInput = document.getElementById('username-input');
-
         const questionsView = document.getElementById('questions-view');
         const quizView = document.getElementById('quiz-view');
         const rankingView = document.getElementById('ranking-view');
-
         const questionListContainer = document.getElementById('question-list-container');
         const questionTitle = document.getElementById('question-title');
         const optionsContainer = document.getElementById('options-container');
         const attemptsInfo = document.getElementById('attempts-info');
         const submitBtn = document.getElementById('submit-btn');
-
         const rankingContainer = document.getElementById('ranking-container');
         const showQuestionsBtn = document.getElementById('show-questions-btn');
         const showRankingBtn = document.getElementById('show-ranking-btn');
-
         const loadingOverlay = document.getElementById('loading-overlay');
 
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            username = usernameInput.value;
-            if (username) {
-                welcomeSection.style.display = 'none';
-                mainQuizSection.style.display = 'block';
+        // 事件監聽器：當DOM載入完成後執行
+        document.addEventListener('DOMContentLoaded', () => {
+            setFontSize('medium'); // 設定預設字體大小
+            // 監聽登入表單提交事件
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                username = usernameInput.value.trim();
+                if (username) {
+                    welcomeSection.style.display = 'none';
+                    mainQuizSection.style.display = 'block';
+                    showLoading();
+                    loadUserStatus()
+                        .then(() => loadQuestions())
+                        .finally(hideLoading);
+                }
+            });
+
+            // 監聽導航按鈕事件
+            showQuestionsBtn.addEventListener('click', showQuestionsList);
+            showRankingBtn.addEventListener('click', () => {
                 showLoading();
-                // 修正：確保載入順序，先載入狀態再載入題目
-                loadUserStatus()
-                    .then(() => loadQuestions())
-                    .finally(hideLoading);
-            }
-        });
-        
-        showQuestionsBtn.addEventListener('click', showQuestionsList);
-        showRankingBtn.addEventListener('click', () => {
-            showLoading();
-            showRanking().finally(hideLoading);
-        });
-        submitBtn.addEventListener('click', () => {
-            showLoading();
-            submitAnswer().finally(hideLoading);
+                showRanking().finally(hideLoading);
+            });
+            submitBtn.addEventListener('click', () => {
+                showLoading();
+                submitAnswer().finally(hideLoading);
+            });
         });
 
+        // 載入畫面控制
         function showLoading() {
             loadingOverlay.style.display = 'flex';
         }
@@ -150,6 +152,22 @@
             loadingOverlay.style.display = 'none';
         }
 
+        // 調整字體大小
+        function setFontSize(size) {
+            document.querySelectorAll('.font-size-controls button').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.font-size-controls button[onclick="setFontSize('${size}')"]`).classList.add('active');
+            
+            const root = document.documentElement;
+            if (size === 'small') {
+                root.style.fontSize = '14px';
+            } else if (size === 'medium') {
+                root.style.fontSize = '16px';
+            } else if (size === 'large') {
+                root.style.fontSize = '18px';
+            }
+        }
+
+        // 前端介面顯示切換
         function showQuestionsList() {
             quizView.style.display = 'none';
             rankingView.style.display = 'none';
@@ -164,22 +182,7 @@
             return fetchRanking();
         }
 
-        function setFontSize(size) {
-            document.querySelectorAll('.font-size-controls button').forEach(btn => btn.classList.remove('active'));
-            document.querySelector(`.font-size-controls button[onclick="setFontSize('${size}')"]`).classList.add('active');
-            
-            const root = document.documentElement;
-            if (size === 'small') {
-                root.style.fontSize = '14px';
-            } else if (size === 'medium') {
-                root.style.fontSize = '16px';
-            } else if (size === 'large') {
-                root.style.fontSize = '18px';
-            }
-        }
-        document.addEventListener('DOMContentLoaded', () => setFontSize('medium'));
-
-
+        // 與Apps Script後端通訊的核心函式
         function fetchAPI(action, params = {}) {
             const formData = new FormData();
             formData.append('action', action);
@@ -192,6 +195,7 @@
             }).then(res => res.json());
         }
 
+        // 載入所有題目
         function loadQuestions() {
             return fetchAPI('getQuestions').then(data => {
                 if (data.error) {
@@ -203,6 +207,7 @@
             });
         }
         
+        // 載入使用者作答狀態
         function loadUserStatus() {
             return fetchAPI('getUserStatus', { name: username }).then(data => {
                 if (data.error) {
@@ -213,6 +218,7 @@
             });
         }
 
+        // 渲染題目列表
         function renderQuestionList() {
             questionListContainer.innerHTML = '';
             questions.forEach(q => {
@@ -220,6 +226,7 @@
                 btn.href = '#';
                 btn.textContent = `題目 ${q['題號']}`;
                 btn.className = 'question-btn';
+                // 檢查是否已答對，並標記顏色
                 if (userStatus.responses[q['題號']] && userStatus.responses[q['題號']].score > 0) {
                     btn.classList.add('answered');
                 }
@@ -228,6 +235,7 @@
             });
         }
 
+        // 顯示單一題目
         function showQuestion(question) {
             questionsView.style.display = 'none';
             rankingView.style.display = 'none';
@@ -292,6 +300,7 @@
             submitBtn.textContent = submitBtn.disabled ? '已無作答次數' : '提交答案';
         }
 
+        // 提交答案
         function submitAnswer() {
             return new Promise((resolve, reject) => {
                 if (!currentQuestion) {
@@ -348,10 +357,14 @@
                         alert('提交答案失敗: ' + result.error);
                         reject(result.error);
                     }
+                }).catch(error => {
+                    alert('連線錯誤，請稍後再試。');
+                    reject(error);
                 });
             });
         }
 
+        // 獲取排名
         function fetchRanking() {
             return fetchAPI('getRanking').then(data => {
                 if (data.error) {
@@ -364,6 +377,8 @@
                     li.textContent = `第 ${index + 1} 名: ${rank.name} - ${rank.score} 分`;
                     rankingContainer.appendChild(li);
                 });
+            }).catch(error => {
+                alert('連線錯誤，請稍後再試。');
             });
         }
     </script>
