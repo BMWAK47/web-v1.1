@@ -12,6 +12,11 @@
         .question-btn { padding: 10px 15px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer; background: #eee; text-decoration: none; color: #333; }
         .question-btn.answered { background-color: #d4edda; border-color: #c3e6cb; }
         .quiz-section h2 { margin-top: 0; }
+        /* 新增題目文字的樣式 */
+        #question-text { 
+            font-size: 1rem; /* 預設字體大小 */
+            line-height: 1.6;
+        }
         .options div { margin: 10px 0; }
         .options input, .options textarea { margin-right: 10px; }
         .ranking-list { list-style: none; padding: 0; }
@@ -45,7 +50,7 @@
 <body>
 
     <div id="loading-overlay">
-        <p>載入中...請稍候</p>
+        <p>載入中...請稍後</p>
     </div>
 
     <div class="container">
@@ -77,6 +82,8 @@
 
             <div id="quiz-view" style="display: none;">
                 <h2 id="question-title"></h2>
+                <p id="question-text"></p>
+                
                 <div class="options" id="options-container"></div>
                 <div id="attempts-info"></div>
                 <button id="submit-btn">提交答案</button>
@@ -90,7 +97,7 @@
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzkhhV9y6iHlWY14V4ucYNqNkkYJ5LAbfi8nEhF9vX7E8O-rs05P5d4qfnh47QibyFx/exec"; // 請務必在此處替換為你的網頁應用程式 URL
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzkhhV9y6iHlWY14V4ucYNqNkkYJ5LAbfi8nEhF9vX7E8O-rs05P5d4qfnh47QibyFx/exec"; 
 
         let questions = [];
         let username = '';
@@ -106,6 +113,7 @@
         const rankingView = document.getElementById('ranking-view');
         const questionListContainer = document.getElementById('question-list-container');
         const questionTitle = document.getElementById('question-title');
+        const questionText = document.getElementById('question-text'); // 新增的題目文字元素
         const optionsContainer = document.getElementById('options-container');
         const attemptsInfo = document.getElementById('attempts-info');
         const submitBtn = document.getElementById('submit-btn');
@@ -114,10 +122,8 @@
         const showRankingBtn = document.getElementById('show-ranking-btn');
         const loadingOverlay = document.getElementById('loading-overlay');
 
-        // 事件監聽器：當DOM載入完成後執行
         document.addEventListener('DOMContentLoaded', () => {
-            setFontSize('medium'); // 設定預設字體大小
-            // 監聽登入表單提交事件
+            setFontSize('medium');
             loginForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 username = usernameInput.value.trim();
@@ -131,7 +137,6 @@
                 }
             });
 
-            // 監聽導航按鈕事件
             showQuestionsBtn.addEventListener('click', showQuestionsList);
             showRankingBtn.addEventListener('click', () => {
                 showLoading();
@@ -143,7 +148,6 @@
             });
         });
 
-        // 載入畫面控制
         function showLoading() {
             loadingOverlay.style.display = 'flex';
         }
@@ -152,22 +156,24 @@
             loadingOverlay.style.display = 'none';
         }
 
-        // 調整字體大小
+        // 修正：調整字體大小時，同時影響題目文字
         function setFontSize(size) {
             document.querySelectorAll('.font-size-controls button').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`.font-size-controls button[onclick="setFontSize('${size}')"]`).classList.add('active');
             
-            const root = document.documentElement;
+            let fontSizeValue;
             if (size === 'small') {
-                root.style.fontSize = '14px';
+                fontSizeValue = '14px';
             } else if (size === 'medium') {
-                root.style.fontSize = '16px';
+                fontSizeValue = '16px';
             } else if (size === 'large') {
-                root.style.fontSize = '18px';
+                fontSizeValue = '18px';
             }
+            
+            document.documentElement.style.fontSize = fontSizeValue;
+            questionText.style.fontSize = fontSizeValue;
         }
 
-        // 前端介面顯示切換
         function showQuestionsList() {
             quizView.style.display = 'none';
             rankingView.style.display = 'none';
@@ -182,7 +188,6 @@
             return fetchRanking();
         }
 
-        // 與Apps Script後端通訊的核心函式
         function fetchAPI(action, params = {}) {
             const formData = new FormData();
             formData.append('action', action);
@@ -195,7 +200,6 @@
             }).then(res => res.json());
         }
 
-        // 載入所有題目
         function loadQuestions() {
             return fetchAPI('getQuestions').then(data => {
                 if (data.error) {
@@ -207,7 +211,6 @@
             });
         }
         
-        // 載入使用者作答狀態
         function loadUserStatus() {
             return fetchAPI('getUserStatus', { name: username }).then(data => {
                 if (data.error) {
@@ -218,7 +221,6 @@
             });
         }
 
-        // 渲染題目列表
         function renderQuestionList() {
             questionListContainer.innerHTML = '';
             questions.forEach(q => {
@@ -226,7 +228,6 @@
                 btn.href = '#';
                 btn.textContent = `題目 ${q['題號']}`;
                 btn.className = 'question-btn';
-                // 檢查是否已答對，並標記顏色
                 if (userStatus.responses[q['題號']] && userStatus.responses[q['題號']].score > 0) {
                     btn.classList.add('answered');
                 }
@@ -235,14 +236,16 @@
             });
         }
 
-        // 顯示單一題目
         function showQuestion(question) {
             questionsView.style.display = 'none';
             rankingView.style.display = 'none';
             quizView.style.display = 'block';
 
             currentQuestion = question;
-            questionTitle.textContent = `第 ${question['題號']} 題: ${question['題目']}`;
+            // 修正：將題號和題目內容分開顯示
+            questionTitle.textContent = `第 ${question['題號']} 題`;
+            questionText.textContent = question['題目'];
+            
             optionsContainer.innerHTML = '';
 
             const attemptsLeft = (question['作答次數限制'] || 1) - (userStatus.attempts[question['題號']] || 0);
@@ -300,7 +303,6 @@
             submitBtn.textContent = submitBtn.disabled ? '已無作答次數' : '提交答案';
         }
 
-        // 提交答案
         function submitAnswer() {
             return new Promise((resolve, reject) => {
                 if (!currentQuestion) {
@@ -364,7 +366,6 @@
             });
         }
 
-        // 獲取排名
         function fetchRanking() {
             return fetchAPI('getRanking').then(data => {
                 if (data.error) {
