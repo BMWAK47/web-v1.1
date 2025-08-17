@@ -12,9 +12,8 @@
         .question-btn { padding: 10px 15px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer; background: #eee; text-decoration: none; color: #333; }
         .question-btn.answered { background-color: #d4edda; border-color: #c3e6cb; }
         .quiz-section h2 { margin-top: 0; }
-        /* 新增題目文字的樣式 */
         #question-text { 
-            font-size: 1rem; /* 預設字體大小 */
+            font-size: 1rem; 
             line-height: 1.6;
         }
         .options div { margin: 10px 0; }
@@ -83,8 +82,7 @@
             <div id="quiz-view" style="display: none;">
                 <h2 id="question-title"></h2>
                 <p id="question-text"></p>
-                
-                <div class="options" id="options-container"></div>
+                <div id="score-info"></div> <div class="options" id="options-container"></div>
                 <div id="attempts-info"></div>
                 <button id="submit-btn">提交答案</button>
             </div>
@@ -113,7 +111,8 @@
         const rankingView = document.getElementById('ranking-view');
         const questionListContainer = document.getElementById('question-list-container');
         const questionTitle = document.getElementById('question-title');
-        const questionText = document.getElementById('question-text'); // 新增的題目文字元素
+        const questionText = document.getElementById('question-text');
+        const scoreInfo = document.getElementById('score-info'); // 新增的元素
         const optionsContainer = document.getElementById('options-container');
         const attemptsInfo = document.getElementById('attempts-info');
         const submitBtn = document.getElementById('submit-btn');
@@ -156,7 +155,6 @@
             loadingOverlay.style.display = 'none';
         }
 
-        // 修正：調整字體大小時，同時影響題目文字
         function setFontSize(size) {
             document.querySelectorAll('.font-size-controls button').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`.font-size-controls button[onclick="setFontSize('${size}')"]`).classList.add('active');
@@ -242,9 +240,12 @@
             quizView.style.display = 'block';
 
             currentQuestion = question;
-            // 修正：將題號和題目內容分開顯示
             questionTitle.textContent = `第 ${question['題號']} 題`;
             questionText.textContent = question['題目'];
+            
+            // 顯示該題的滿分資訊
+            const fullScore = question['滿分'] || 1;
+            scoreInfo.textContent = `這題滿分：${fullScore} 分`;
             
             optionsContainer.innerHTML = '';
 
