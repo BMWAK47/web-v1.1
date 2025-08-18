@@ -119,14 +119,14 @@
             display: block;
         }
         
-        /* 修正：選中後的選項樣式，應用於整個 div */
+        /* 選中後的選項樣式，應用於整個 div */
         .options div.checked {
             background: linear-gradient(45deg, #00ffff, #8a2be2);
             box-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
             border-color: #00ffff;
         }
         .options div.checked label {
-            color: #1a1a2e; /* 確保文字在亮色背景下清晰可見 */
+            color: #1a1a2e;
             font-weight: bold;
             text-shadow: none;
         }
@@ -478,6 +478,8 @@
                         optionDiv.addEventListener('click', () => {
                             optionsContainer.querySelectorAll('div').forEach(div => div.classList.remove('checked'));
                             optionDiv.classList.add('checked');
+                            // 確保 radio 按鈕狀態同步
+                            input.checked = true;
                         });
                     }
                 }
@@ -504,6 +506,8 @@
                         // 為多選選項添加點擊事件
                         optionDiv.addEventListener('click', () => {
                             optionDiv.classList.toggle('checked');
+                            // 確保 checkbox 按鈕狀態同步
+                            input.checked = optionDiv.classList.contains('checked');
                         });
                     }
                 }
