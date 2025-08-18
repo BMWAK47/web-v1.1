@@ -35,6 +35,11 @@
             font-family: 'Orbitron', sans-serif;
             text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
         }
+        
+        /* 段落文字維持正常字體 */
+        p, label {
+            font-family: 'Microsoft JhengHei', '微軟正黑體', Arial, sans-serif;
+        }
 
         /* 按鈕基礎樣式，使用科幻字體 */
         button, .question-btn {
@@ -48,6 +53,7 @@
             transition: transform 0.2s ease, box-shadow 0.3s ease;
             box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
             font-family: 'Orbitron', sans-serif;
+            text-align: center;
         }
         button:hover, .question-btn:hover {
             transform: scale(1.05);
@@ -77,15 +83,14 @@
         .question-list {
             display: flex;
             flex-wrap: wrap;
-            /* 修正：每行顯示6個按鈕 */
-            gap: 15px; 
+            gap: 15px;
             margin-top: 20px;
             justify-content: center;
         }
         .question-btn {
-            flex: 0 0 calc(16.666% - 15px); /* 100% / 6 = 16.666% */
-            max-width: calc(16.666% - 15px);
-            text-align: center;
+            /* 修正：每行顯示6個按鈕，並確保間距 */
+            flex: 1 1 calc(16.666% - 15px);
+            min-width: 100px; /* 確保小螢幕時不會過度擠壓 */
             text-decoration: none;
             padding: 15px 10px;
         }
@@ -107,17 +112,22 @@
             transform: translateY(-5px);
             box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
         }
-        .options input {
+        .options input[type="radio"], .options input[type="checkbox"] {
             display: none;
         }
         .options label {
             cursor: pointer;
             display: block;
         }
+        /* 修正：選中後的選項樣式 */
         .options input:checked + label {
             color: #00ffff;
             font-weight: bold;
             text-shadow: 0 0 8px #00ffff;
+            background-color: #4a4a6e;
+            border-radius: 8px;
+            padding: 10px;
+            margin: -10px; /* 擴展背景色到 div 邊緣 */
         }
         
         /* 問答區塊樣式 */
@@ -216,7 +226,7 @@
 <body>
 
     <div id="loading-overlay">
-        <p>資料傳輸中...請稍後</p>
+        <p>資料傳輸中...請稍候</p>
     </div>
 
     <div class="container">
@@ -357,7 +367,7 @@
             quizView.style.display = 'none';
             rankingView.style.display = 'none';
             questionsView.style.display = 'block';
-            totalScoreContainer.style.display = 'block'; // 修正：顯示進度條容器
+            totalScoreContainer.style.display = 'block'; 
             updateProgressBar();
             renderQuestionList();
         }
@@ -540,7 +550,7 @@
                         }
                         
                         renderQuestionList();
-                        updateProgressBar(); // 修正：提交後更新進度條
+                        updateProgressBar(); 
                         resolve();
                     } else {
                         alert('提交答案失敗: ' + result.error);
