@@ -18,16 +18,29 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            
+            /* 修正：增加流動背景效果 */
+            background-image: linear-gradient(45deg, #1a1a2e 0%, #2a2a44 50%, #1a1a2e 100%);
+            background-size: 400% 400%;
+            animation: flowBackground 20s ease infinite;
         }
+
+        @keyframes flowBackground {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         .container {
             max-width: 900px;
             width: 100%;
-            background: #2a2a44;
+            background: rgba(42, 42, 68, 0.9); /* 讓背景透明一點，看得到流動效果 */
             padding: 40px;
             border-radius: 20px;
             box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
             position: relative;
             animation: fadeIn 1.5s ease-in-out;
+            border: 1px solid rgba(0, 255, 255, 0.3);
         }
 
         /* 標題與段落的發光效果，使用科幻字體 */
@@ -106,6 +119,7 @@
             margin-bottom: 10px;
             transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
             border: 1px solid #4a4a6e;
+            cursor: pointer;
         }
         .options div:hover {
             transform: translateY(-5px);
@@ -165,6 +179,17 @@
         #loading-overlay {
             background: rgba(26, 26, 46, 0.9);
             color: #00ffff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
         }
 
         /* 進度條樣式 */
@@ -208,7 +233,7 @@
         }
         
         /* 彈性佈局調整 */
-        .header, .nav-buttons, .font-size-controls {
+        .header, .nav-buttons {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -221,13 +246,22 @@
         .header h1 { margin-bottom: 5px; }
         .header p { margin-top: 0; }
         #questions-view h2, #ranking-view h2 { text-align: center; }
-        
+
+        /* 修正：字體大小按鈕位置 */
+        .font-size-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
     </style>
 </head>
 <body>
 
     <div id="loading-overlay">
-        <p>資料傳輸中...請稍後</p>
+        <p>資料傳輸中...請稍候</p>
     </div>
 
     <div class="container">
