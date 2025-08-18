@@ -88,9 +88,8 @@
             justify-content: center;
         }
         .question-btn {
-            /* 修正：每行顯示6個按鈕，並確保間距 */
             flex: 1 1 calc(16.666% - 15px);
-            min-width: 100px; /* 確保小螢幕時不會過度擠壓 */
+            min-width: 100px;
             text-decoration: none;
             padding: 15px 10px;
         }
@@ -105,7 +104,7 @@
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 10px;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
             border: 1px solid #4a4a6e;
         }
         .options div:hover {
@@ -119,15 +118,17 @@
             cursor: pointer;
             display: block;
         }
-        /* 修正：選中後的選項樣式 */
-        .options input:checked + label {
-            color: #00ffff;
+        
+        /* 修正：選中後的選項樣式，應用於整個 div */
+        .options div.checked {
+            background: linear-gradient(45deg, #00ffff, #8a2be2);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
+            border-color: #00ffff;
+        }
+        .options div.checked label {
+            color: #1a1a2e; /* 確保文字在亮色背景下清晰可見 */
             font-weight: bold;
-            text-shadow: 0 0 8px #00ffff;
-            background-color: #4a4a6e;
-            border-radius: 8px;
-            padding: 10px;
-            margin: -10px; /* 擴展背景色到 div 邊緣 */
+            text-shadow: none;
         }
         
         /* 問答區塊樣式 */
@@ -226,7 +227,7 @@
 <body>
 
     <div id="loading-overlay">
-        <p>資料傳輸中...請稍候</p>
+        <p>資料傳輸中...請稍後</p>
     </div>
 
     <div class="container">
@@ -469,8 +470,15 @@
                         
                         label.textContent = `${optionLetter}. ${optionValue}`;
                         label.prepend(input);
+                        
                         optionDiv.appendChild(label);
                         optionsContainer.appendChild(optionDiv);
+
+                        // 為單選選項添加點擊事件
+                        optionDiv.addEventListener('click', () => {
+                            optionsContainer.querySelectorAll('div').forEach(div => div.classList.remove('checked'));
+                            optionDiv.classList.add('checked');
+                        });
                     }
                 }
             } else if (question['題型'] === '多選') {
@@ -489,8 +497,14 @@
                         
                         label.textContent = `${optionLetter}. ${optionValue}`;
                         label.prepend(input);
+                        
                         optionDiv.appendChild(label);
                         optionsContainer.appendChild(optionDiv);
+
+                        // 為多選選項添加點擊事件
+                        optionDiv.addEventListener('click', () => {
+                            optionDiv.classList.toggle('checked');
+                        });
                     }
                 }
             }
