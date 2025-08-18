@@ -7,7 +7,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
-        /* 將內文字體恢復正常，但標題和按鈕保留科幻感字體 */
         body {
             font-family: 'Microsoft JhengHei', '微軟正黑體', Arial, sans-serif;
             background: #1a1a2e;
@@ -18,8 +17,6 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            
-            /* 修正：增加流動背景效果 */
             background-image: linear-gradient(45deg, #1a1a2e 0%, #2a2a44 50%, #1a1a2e 100%);
             background-size: 400% 400%;
             animation: flowBackground 20s ease infinite;
@@ -34,7 +31,7 @@
         .container {
             max-width: 900px;
             width: 100%;
-            background: rgba(42, 42, 68, 0.9); /* 讓背景透明一點，看得到流動效果 */
+            background: rgba(42, 42, 68, 0.9);
             padding: 40px;
             border-radius: 20px;
             box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
@@ -43,18 +40,15 @@
             border: 1px solid rgba(0, 255, 255, 0.3);
         }
 
-        /* 標題與段落的發光效果，使用科幻字體 */
         h1, h2, #question-title {
             font-family: 'Orbitron', sans-serif;
             text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
         }
         
-        /* 段落文字維持正常字體 */
         p, label {
             font-family: 'Microsoft JhengHei', '微軟正黑體', Arial, sans-serif;
         }
 
-        /* 按鈕基礎樣式，使用科幻字體 */
         button, .question-btn {
             background: linear-gradient(45deg, #007bff, #8a2be2);
             color: white;
@@ -76,7 +70,6 @@
             transform: scale(0.95);
         }
 
-        /* 登入表單樣式 */
         #login-form input {
             background: #1a1a2e;
             border: 1px solid #00ffff;
@@ -92,7 +85,6 @@
             box-shadow: 0 0 10px #00ffff, inset 0 0 10px #00ffff;
         }
         
-        /* 題目列表樣式 */
         .question-list {
             display: flex;
             flex-wrap: wrap;
@@ -111,7 +103,6 @@
             box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
         }
 
-        /* 選擇選項樣式 */
         .options div {
             background: #3a3a54;
             padding: 15px;
@@ -133,7 +124,6 @@
             display: block;
         }
         
-        /* 選中後的選項樣式，應用於整個 div */
         .options div.checked {
             background: linear-gradient(45deg, #00ffff, #8a2be2);
             box-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
@@ -145,7 +135,6 @@
             text-shadow: none;
         }
         
-        /* 問答區塊樣式 */
         textarea {
             width: 100%;
             height: 100px;
@@ -159,7 +148,6 @@
             font-family: 'Microsoft JhengHei', '微軟正黑體', Arial, sans-serif;
         }
 
-        /* 排名列表樣式 */
         .ranking-list li {
             background: #3a3a54;
             padding: 15px;
@@ -175,20 +163,19 @@
             box-shadow: 0 0 20px #ffd700;
         }
         
-        /* 進度條容器樣式 */
         #total-score-container {
             display: flex;
             align-items: center;
-            gap: 15px; /* 進度條與火焰圖標之間的間距 */
+            gap: 15px;
             flex-wrap: wrap;
         }
         #total-score-container h3 {
-            flex-basis: 100%; /* 讓標題獨佔一行 */
+            flex-basis: 100%;
         }
         .progress-bar-and-flame {
             display: flex;
             align-items: center;
-            flex-grow: 1; /* 讓進度條佔據剩餘空間 */
+            flex-grow: 1;
         }
         .progress-bar-container {
             flex-grow: 1;
@@ -207,14 +194,13 @@
             position: relative;
         }
         
-        /* 火焰圖標樣式 */
         .flame-icon {
             width: 40px;
             height: 40px;
             background-color: transparent;
             position: relative;
             transform: scale(0.9);
-            animation: flameGlow 2s infinite alternate; /* 火焰呼吸動畫 */
+            animation: flameGlow 2s infinite alternate;
         }
         .flame-icon img {
             width: 100%;
@@ -236,13 +222,11 @@
             }
         }
 
-        /* 動畫 */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* 彈性佈局調整 */
         .header, .nav-buttons {
             display: flex;
             flex-direction: column;
@@ -257,7 +241,6 @@
         .header p { margin-top: 0; }
         #questions-view h2, #ranking-view h2 { text-align: center; }
 
-        /* 修正：字體大小按鈕位置 */
         .font-size-controls {
             position: absolute;
             top: 20px;
@@ -266,9 +249,60 @@
             gap: 10px;
             z-index: 10;
         }
+
+        /* 載入畫面樣式 */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: #00ffff;
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        #loading-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .loading-spinner {
+            border: 4px solid rgba(0, 255, 255, 0.2);
+            border-top: 4px solid #00ffff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading-text {
+            margin-top: 20px;
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 8px #00ffff;
+        }
+        .loading-joke {
+            margin-top: 10px;
+            font-size: 1.2em;
+        }
     </style>
 </head>
 <body>
+
+    <div id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">正在分析資料中...</div>
+        <div class="loading-joke" id="loading-message"></div>
+    </div>
 
     <div class="container">
         <div class="font-size-controls">
@@ -328,7 +362,6 @@
     </div>
 
     <script>
-        // 請務必將 YOUR_WEB_APP_URL_HERE 替換為你的 Google Apps Script 網址
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzkhhV9y6iHlWY14V4ucYNqNkkYJ5LAbfi8nEhF9vX7E8O-rs05P5d4qfnh47QibyFx/exec"; 
 
         let questions = [];
@@ -357,23 +390,61 @@
         const scoreProgressBar = document.getElementById('score-progress-bar');
         const totalScoreContainer = document.getElementById('total-score-container');
         const currentScoreText = document.getElementById('current-score-text');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const loadingMessage = document.getElementById('loading-message');
 
+        const loadingMessages = [
+            "為什麼企鵝不喜歡打架？因為牠們是紳士！",
+            "太陽系中，哪顆行星的自轉最慢？金星，它的自轉週期比公轉週期還長。",
+            "一個軟體工程師走進酒吧，喝了酒後很生氣地說：'這個軟體有 Bug！' 酒保回答：'我們沒有 Bug，只有 Features。'",
+            "你知道黑洞是什麼顏色的嗎？黑色。因為光線無法逃脫。",
+            "小明從十樓跳下來，為什麼沒有事？因為他跳的是一樓。",
+            "蜜蜂的翅膀每秒可以振動多少次？大約200次。",
+            "什麼東西比馬跑得快？時間。",
+            "地球上最堅硬的物質是什麼？鑽石。",
+            "為什麼電腦會感冒？因為它有太多病毒！"
+        ];
+        
         document.addEventListener('DOMContentLoaded', () => {
             setFontSize('medium');
             loginForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 username = usernameInput.value.trim();
                 if (username) {
-                    welcomeSection.style.display = 'none';
-                    mainQuizSection.style.display = 'block';
-                    loadUserStatus().then(() => loadQuestions());
+                    showLoading();
+                    loadUserStatus().then(() => {
+                        return loadQuestions();
+                    }).then(() => {
+                        hideLoading();
+                        welcomeSection.style.display = 'none';
+                        mainQuizSection.style.display = 'block';
+                    }).catch(error => {
+                        hideLoading();
+                        alert('登入失敗或連線錯誤: ' + error.message);
+                    });
                 }
             });
 
-            showQuestionsBtn.addEventListener('click', showQuestionsList);
-            showRankingBtn.addEventListener('click', () => showRanking());
-            submitBtn.addEventListener('click', () => submitAnswer());
+            showQuestionsBtn.addEventListener('click', () => {
+                showQuestionsList();
+            });
+            showRankingBtn.addEventListener('click', () => {
+                showRanking();
+            });
+            submitBtn.addEventListener('click', () => {
+                submitAnswer();
+            });
         });
+
+        function showLoading() {
+            const randomIndex = Math.floor(Math.random() * loadingMessages.length);
+            loadingMessage.textContent = loadingMessages[randomIndex];
+            loadingOverlay.classList.add('visible');
+        }
+
+        function hideLoading() {
+            loadingOverlay.classList.remove('visible');
+        }
 
         function setFontSize(size) {
             document.querySelectorAll('.font-size-controls button').forEach(btn => btn.classList.remove('active'));
@@ -402,10 +473,11 @@
         }
 
         function showRanking() {
+            showLoading();
             questionsView.style.display = 'none';
             quizView.style.display = 'none';
             rankingView.style.display = 'block';
-            return fetchRanking();
+            fetchRanking().then(() => hideLoading()).catch(() => hideLoading());
         }
 
         function fetchAPI(action, params = {}) {
@@ -423,8 +495,7 @@
         function loadQuestions() {
             return fetchAPI('getQuestions').then(data => {
                 if (data.error) {
-                    alert('載入題目失敗: ' + data.error);
-                    return;
+                    throw new Error(data.error);
                 }
                 questions = data;
                 maxPossibleScore = questions.reduce((sum, q) => sum + (q['滿分'] || 1), 0);
@@ -436,6 +507,7 @@
             return fetchAPI('getUserStatus', { name: username }).then(data => {
                 if (data.error) {
                     console.error('載入使用者狀態失敗:', data.error);
+                    throw new Error('載入使用者狀態失敗');
                 } else {
                     userStatus = data;
                     updateProgressBar();
@@ -502,7 +574,6 @@
                         optionDiv.appendChild(label);
                         optionsContainer.appendChild(optionDiv);
 
-                        // 修正：監聽 input 的 change 事件
                         input.addEventListener('change', () => {
                             optionsContainer.querySelectorAll('div').forEach(div => div.classList.remove('checked'));
                             if (input.checked) {
@@ -531,7 +602,6 @@
                         optionDiv.appendChild(label);
                         optionsContainer.appendChild(optionDiv);
 
-                        // 修正：監聽 input 的 change 事件
                         input.addEventListener('change', () => {
                             optionDiv.classList.toggle('checked', input.checked);
                         });
@@ -573,12 +643,14 @@
                     reject('no answer');
                     return;
                 }
-
+                
+                showLoading();
                 fetchAPI('submitResponse', { 
                     name: username, 
                     questionId: currentQuestion['題號'], 
                     userAnswer: answer 
                 }).then(result => {
+                    hideLoading();
                     if (result.success) {
                         alert(`作答成功！你獲得了 ${result.score} 分。你的總分為: ${result.totalScore}`);
                         userStatus.attempts[currentQuestion['題號']] = (userStatus.attempts[currentQuestion['題號']] || 0) + 1;
@@ -601,6 +673,7 @@
                         reject(result.error);
                     }
                 }).catch(error => {
+                    hideLoading();
                     alert('連線錯誤，請稍候再試。');
                     reject(error);
                 });
@@ -610,8 +683,7 @@
         function fetchRanking() {
             return fetchAPI('getRanking').then(data => {
                 if (data.error) {
-                    alert('載入排名失敗: ' + data.error);
-                    return;
+                    throw new Error(data.error);
                 }
                 rankingContainer.innerHTML = '';
                 data.forEach((rank, index) => {
@@ -619,8 +691,6 @@
                     li.textContent = `第 ${index + 1} 名: ${rank.name} - ${rank.score} 分`;
                     rankingContainer.appendChild(li);
                 });
-            }).catch(error => {
-                    alert('連線錯誤，請稍候再試。');
             });
         }
         
