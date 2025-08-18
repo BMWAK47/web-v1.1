@@ -3,53 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>線上測驗系統</title>
+    <title>AI 測驗終端機</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .header { text-align: center; margin-bottom: 20px; }
-        .question-list { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
-        .question-btn { padding: 10px 15px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer; background: #eee; text-decoration: none; color: #333; }
-        .question-btn.answered { background-color: #d4edda; border-color: #c3e6cb; }
-        .quiz-section h2 { margin-top: 0; }
-        #question-text { 
-            font-size: 1rem; 
-            line-height: 1.6;
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Orbitron', Arial, sans-serif;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
-        .options div { margin: 10px 0; }
-        .options input, .options textarea { margin-right: 10px; }
-        .ranking-list { list-style: none; padding: 0; }
-        .ranking-list li { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
-        #submit-btn { padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        #login-form { text-align: center; }
-        #login-form input { padding: 8px; margin-top: 10px; border-radius: 5px; border: 1px solid #ccc; }
-        #login-form button { padding: 8px 15px; border: none; background-color: #28a745; color: white; border-radius: 5-px; cursor: pointer; }
-        .nav-buttons button { margin-right: 10px; padding: 8px 15px; border: none; background-color: #6c757d; color: white; border-radius: 5px; cursor: pointer; }
-        #attempts-info { font-size: 0.9em; color: #666; margin-top: 10px; }
-        .font-size-controls { text-align: right; margin-bottom: 10px; }
-        .font-size-controls button { padding: 5px 10px; cursor: pointer; border: 1px solid #ccc; background: #f9f9f9; border-radius: 4px; }
-        .font-size-controls button.active { background-color: #007bff; color: white; }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: #2a2a44;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+            position: relative;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        /* 標題與段落的發光效果 */
+        h1, h2, p {
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        }
+
+        /* 按鈕基礎樣式 */
+        button, .question-btn {
+            background: linear-gradient(45deg, #007bff, #8a2be2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+            font-family: 'Orbitron', sans-serif;
+        }
+        button:hover, .question-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(138, 43, 226, 0.6);
+        }
+        button:active, .question-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 登入表單樣式 */
+        #login-form input {
+            background: #1a1a2e;
+            border: 1px solid #00ffff;
+            color: #00ffff;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            box-shadow: inset 0 0 8px rgba(0, 255, 255, 0.3);
+            font-family: 'Orbitron', sans-serif;
+        }
+        #login-form input:focus {
+            outline: none;
+            box-shadow: 0 0 10px #00ffff, inset 0 0 10px #00ffff;
+        }
+        
+        /* 題目列表樣式 */
+        .question-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .question-btn.answered {
+            background: linear-gradient(45deg, #28a745, #1d9539);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        /* 選擇選項樣式 */
+        .options div {
+            background: #3a3a54;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #4a4a6e;
+        }
+        .options div:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
+        }
+        .options input {
+            display: none;
+        }
+        .options label {
+            cursor: pointer;
+            display: block;
+        }
+        .options input:checked + label {
+            color: #00ffff;
+            font-weight: bold;
+            text-shadow: 0 0 8px #00ffff;
+        }
+        
+        /* 問答區塊樣式 */
+        textarea {
+            width: 100%;
+            height: 100px;
+            background: #1a1a2e;
+            border: 1px solid #00ffff;
+            color: #00ffff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: inset 0 0 8px rgba(0, 255, 255, 0.3);
+            resize: vertical;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* 排名列表樣式 */
+        .ranking-list li {
+            background: #3a3a54;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .ranking-list li:first-child {
+            background: linear-gradient(90deg, #ffd700, #ff8c00);
+            color: #333;
+            box-shadow: 0 0 20px #ffd700;
+        }
+        
+        /* 載入中畫面 */
         #loading-overlay {
-            position: fixed;
+            background: rgba(26, 26, 46, 0.9);
+            color: #00ffff;
+        }
+
+        /* 進度條樣式 */
+        .progress-bar-container {
+            width: 100%;
+            height: 25px;
+            background: #1a1a2e;
+            border-radius: 15px;
+            box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.3);
+            margin: 20px 0;
+            overflow: hidden;
+            border: 1px solid #00ffff;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, #00ffff, #8a2be2);
+            transition: width 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+            position: relative;
+        }
+        .progress-bar::after {
+            content: '';
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            z-index: 1000;
-            display: none;
+            background: rgba(255, 255, 255, 0.5);
+            filter: blur(5px);
+            opacity: 0;
+            transition: opacity 0.5s;
         }
-        #loading-overlay p { font-size: 20px; font-weight: bold; }
+        .progress-bar.animate::after {
+            opacity: 1;
+        }
+
+        /* 動畫 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
 
     <div id="loading-overlay">
-        <p>載入中...請稍後</p>
+        <p>資料傳輸中...請稍後</p>
     </div>
 
     <div class="container">
@@ -60,11 +200,11 @@
         </div>
 
         <div class="header" id="welcome-section">
-            <h1>歡迎使用測驗系統！</h1>
-            <p>請輸入你的名稱以開始作答。</p>
+            <h1>AI 測驗終端機</h1>
+            <p>請輸入你的使用者代號以進入系統。</p>
             <form id="login-form">
-                <input type="text" id="username-input" placeholder="你的名稱" required>
-                <button type="submit">進入測驗</button>
+                <input type="text" id="username-input" placeholder="使用者代號" required>
+                <button type="submit">登入</button>
             </form>
         </div>
 
@@ -75,20 +215,30 @@
             </div>
 
             <div id="questions-view">
-                <h2>題目列表</h2>
+                <h2>系統數據流</h2>
                 <div class="question-list" id="question-list-container"></div>
             </div>
 
             <div id="quiz-view" style="display: none;">
                 <h2 id="question-title"></h2>
                 <p id="question-text"></p>
-                <div id="score-info"></div> <div class="options" id="options-container"></div>
+                
+                <div id="total-score-container" style="display: none;">
+                    <h3>總進度</h3>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="score-progress-bar"></div>
+                    </div>
+                    <div id="current-score-text"></div>
+                </div>
+
+                <div id="score-info"></div>
+                <div class="options" id="options-container"></div>
                 <div id="attempts-info"></div>
                 <button id="submit-btn">提交答案</button>
             </div>
             
             <div id="ranking-view" style="display: none;">
-                <h2>即時排名</h2>
+                <h2>核心資料庫排名</h2>
                 <ul class="ranking-list" id="ranking-container"></ul>
             </div>
         </div>
@@ -101,7 +251,8 @@
         let username = '';
         let userStatus = { responses: {}, attempts: {}, totalScore: 0 };
         let currentQuestion = null;
-        
+        let maxPossibleScore = 0; // 新增：計算所有題目的總滿分
+
         const welcomeSection = document.getElementById('welcome-section');
         const mainQuizSection = document.getElementById('main-quiz-section');
         const loginForm = document.getElementById('login-form');
@@ -112,7 +263,7 @@
         const questionListContainer = document.getElementById('question-list-container');
         const questionTitle = document.getElementById('question-title');
         const questionText = document.getElementById('question-text');
-        const scoreInfo = document.getElementById('score-info'); // 新增的元素
+        const scoreInfo = document.getElementById('score-info');
         const optionsContainer = document.getElementById('options-container');
         const attemptsInfo = document.getElementById('attempts-info');
         const submitBtn = document.getElementById('submit-btn');
@@ -120,6 +271,9 @@
         const showQuestionsBtn = document.getElementById('show-questions-btn');
         const showRankingBtn = document.getElementById('show-ranking-btn');
         const loadingOverlay = document.getElementById('loading-overlay');
+        const scoreProgressBar = document.getElementById('score-progress-bar');
+        const totalScoreContainer = document.getElementById('total-score-container');
+        const currentScoreText = document.getElementById('current-score-text');
 
         document.addEventListener('DOMContentLoaded', () => {
             setFontSize('medium');
@@ -176,6 +330,8 @@
             quizView.style.display = 'none';
             rankingView.style.display = 'none';
             questionsView.style.display = 'block';
+            totalScoreContainer.style.display = 'flex';
+            updateProgressBar();
             renderQuestionList();
         }
 
@@ -205,6 +361,8 @@
                     return;
                 }
                 questions = data;
+                // 計算總滿分
+                maxPossibleScore = questions.reduce((sum, q) => sum + (q['滿分'] || 1), 0);
                 renderQuestionList();
             });
         }
@@ -215,6 +373,7 @@
                     console.error('載入使用者狀態失敗:', data.error);
                 } else {
                     userStatus = data;
+                    updateProgressBar();
                 }
             });
         }
@@ -238,12 +397,12 @@
             questionsView.style.display = 'none';
             rankingView.style.display = 'none';
             quizView.style.display = 'block';
+            totalScoreContainer.style.display = 'none';
 
             currentQuestion = question;
             questionTitle.textContent = `第 ${question['題號']} 題`;
             questionText.textContent = question['題目'];
             
-            // 顯示該題的滿分資訊
             const fullScore = question['滿分'] || 1;
             scoreInfo.textContent = `這題滿分：${fullScore} 分`;
             
@@ -382,6 +541,17 @@
             }).catch(error => {
                 alert('連線錯誤，請稍後再試。');
             });
+        }
+        
+        // 新增：更新得分進度條的函式
+        function updateProgressBar() {
+            if (maxPossibleScore > 0) {
+                const percentage = (userStatus.totalScore / maxPossibleScore) * 100;
+                scoreProgressBar.style.width = percentage + '%';
+                currentScoreText.textContent = `總分：${userStatus.totalScore} / ${maxPossibleScore}`;
+                scoreProgressBar.classList.add('animate');
+                setTimeout(() => scoreProgressBar.classList.remove('animate'), 800);
+            }
         }
     </script>
 </body>
