@@ -184,7 +184,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            display: flex;
+            display: none; /* 修正：預設隱藏 */
             justify-content: center;
             align-items: center;
             z-index: 1000;
@@ -607,7 +607,7 @@
                         reject(result.error);
                     }
                 }).catch(error => {
-                    alert('連線錯誤，請稍後再試。');
+                    alert('連線錯誤，請稍候再試。');
                     reject(error);
                 });
             });
@@ -626,7 +626,7 @@
                     rankingContainer.appendChild(li);
                 });
             }).catch(error => {
-                alert('連線錯誤，請稍後再試。');
+                    alert('連線錯誤，請稍候再試。');
             });
         }
         
