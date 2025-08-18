@@ -40,7 +40,7 @@
             border: 1px solid rgba(0, 255, 255, 0.3);
         }
 
-        h1, h2, #question-title {
+        h1, h2, #question-title, #total-score-title {
             font-family: 'Orbitron', sans-serif;
             text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
         }
@@ -163,15 +163,15 @@
             box-shadow: 0 0 20px #ffd700;
         }
         
-        /* 修正進度條樣式 */
+        /* 進度條容器樣式 */
         #total-score-container {
             display: flex;
             align-items: center;
-            flex-direction: column; /* 讓標題和進度條垂直排列 */
+            flex-direction: column;
             gap: 15px;
             margin-bottom: 20px;
         }
-        #total-score-container h3 {
+        #total-score-title {
             margin: 0;
             text-align: center;
             width: 100%;
@@ -184,37 +184,30 @@
             box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.3);
             overflow: hidden;
             border: 1px solid #00ffff;
-            position: relative; /* 為了放置火焰效果 */
+            position: relative;
         }
 
-        /* 移除原有的進度條樣式，使用新的火焰進度條 */
+        /* 預設紅色進度條樣式 */
         .progress-bar {
             height: 100%;
             width: 0;
-            transition: width 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+            background: linear-gradient(90deg, #ff416c, #ff4b2b); /* 紅色漸層 */
+            transition: width 0.8s cubic-bezier(0.25, 0.1, 0.25, 1), background 0.8s ease;
             position: relative;
-            background-image: url('https://i.imgur.com/r99KkXb.gif'); /* 內嵌火焰 GIF 動畫 */
-            background-size: auto 100%;
-            background-repeat: repeat-x; /* 火焰圖片橫向重複 */
-            filter: drop-shadow(0 0 5px #ff5722) drop-shadow(0 0 10px #ff9800);
             border-radius: 15px;
         }
-        
-        .progress-bar::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to right, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0) 100%);
-            animation: pulse 1.5s infinite;
-        }
 
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.8; }
-            100% { opacity: 1; }
+        /* 當分數超過 16.6 分時的紫色進度條樣式 */
+        .progress-bar.purple {
+            background: linear-gradient(90deg, #8a2be2, #4b0082); /* 紫色漸層 */
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.6); /* 新增發光效果 */
+            animation: pulse-purple 1.5s infinite; /* 新增脈衝動態效果 */
+        }
+        
+        @keyframes pulse-purple {
+            0% { box-shadow: 0 0 15px rgba(138, 43, 226, 0.6); }
+            50% { box-shadow: 0 0 25px rgba(138, 43, 226, 0.9); }
+            100% { box-shadow: 0 0 15px rgba(138, 43, 226, 0.6); }
         }
 
         @keyframes fadeIn {
@@ -260,13 +253,13 @@
             z-index: 9999;
             color: #00ffff;
             text-align: center;
-            opacity: 1;
-            visibility: visible;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-        #loading-overlay.hidden {
             opacity: 0;
             visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        #loading-overlay.visible {
+            opacity: 1;
+            visibility: visible;
         }
         .loading-spinner {
             border: 4px solid rgba(0, 255, 255, 0.2);
@@ -293,13 +286,13 @@
 </head>
 <body>
 
-    <div id="loading-overlay" class="visible">
+    <div id="loading-overlay">
         <div class="loading-spinner"></div>
         <div class="loading-text">正在分析資料中...</div>
         <div class="loading-joke" id="loading-message"></div>
     </div>
 
-    <div class="container" style="display:none;">
+    <div class="container">
         <div class="font-size-controls">
             <button onclick="setFontSize('small')">小</button>
             <button onclick="setFontSize('medium')" class="active">中</button>
@@ -322,10 +315,9 @@
             </div>
 
             <div id="questions-view">
-                <h2>系統數據流</h2>
+                <h2 id="total-score-title">極限威能進度</h2>
                 
                 <div id="total-score-container">
-                    <h3>總進度</h3>
                     <div class="progress-bar-container">
                         <div class="progress-bar" id="score-progress-bar"></div>
                     </div>
@@ -382,7 +374,6 @@
         const currentScoreText = document.getElementById('current-score-text');
         const loadingOverlay = document.getElementById('loading-overlay');
         const loadingMessage = document.getElementById('loading-message');
-        const container = document.querySelector('.container');
 
         const loadingMessages = [
             "為什麼企鵝不喜歡打架？因為牠們是紳士！",
@@ -398,8 +389,6 @@
         
         document.addEventListener('DOMContentLoaded', () => {
             setFontSize('medium');
-            hideLoading();
-            container.style.display = 'block';
             
             loginForm.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -433,11 +422,11 @@
         function showLoading() {
             const randomIndex = Math.floor(Math.random() * loadingMessages.length);
             loadingMessage.textContent = loadingMessages[randomIndex];
-            loadingOverlay.classList.remove('hidden');
+            loadingOverlay.classList.add('visible');
         }
 
         function hideLoading() {
-            loadingOverlay.classList.add('hidden');
+            loadingOverlay.classList.remove('visible');
         }
 
         function setFontSize(size) {
@@ -693,8 +682,13 @@
                 const percentage = (userStatus.totalScore / maxPossibleScore) * 100;
                 scoreProgressBar.style.width = percentage + '%';
                 currentScoreText.textContent = `總分：${userStatus.totalScore} / ${maxPossibleScore}`;
-                scoreProgressBar.classList.add('animate');
-                setTimeout(() => scoreProgressBar.classList.remove('animate'), 800);
+
+                // 檢查分數是否超過 16.6 分
+                if (userStatus.totalScore > 16.6) {
+                    scoreProgressBar.classList.add('purple');
+                } else {
+                    scoreProgressBar.classList.remove('purple');
+                }
             }
         }
     </script>
