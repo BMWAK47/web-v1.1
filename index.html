@@ -175,14 +175,27 @@
             box-shadow: 0 0 20px #ffd700;
         }
         
-        /* 進度條樣式 */
+        /* 進度條容器樣式 */
+        #total-score-container {
+            display: flex;
+            align-items: center;
+            gap: 15px; /* 進度條與火焰圖標之間的間距 */
+            flex-wrap: wrap;
+        }
+        #total-score-container h3 {
+            flex-basis: 100%; /* 讓標題獨佔一行 */
+        }
+        .progress-bar-and-flame {
+            display: flex;
+            align-items: center;
+            flex-grow: 1; /* 讓進度條佔據剩餘空間 */
+        }
         .progress-bar-container {
-            width: 100%;
+            flex-grow: 1;
             height: 25px;
             background: #1a1a2e;
             border-radius: 15px;
             box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.3);
-            margin: 20px 0;
             overflow: hidden;
             border: 1px solid #00ffff;
         }
@@ -193,20 +206,34 @@
             transition: width 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
             position: relative;
         }
-        .progress-bar::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
+        
+        /* 火焰圖標樣式 */
+        .flame-icon {
+            width: 40px;
+            height: 40px;
+            background-color: transparent;
+            position: relative;
+            transform: scale(0.9);
+            animation: flameGlow 2s infinite alternate; /* 火焰呼吸動畫 */
+        }
+        .flame-icon img {
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.5);
-            filter: blur(5px);
-            opacity: 0;
-            transition: opacity 0.5s;
         }
-        .progress-bar.animate::after {
-            opacity: 1;
+
+        @keyframes flameGlow {
+            0% {
+                filter: drop-shadow(0 0 5px #ff5722) drop-shadow(0 0 10px #ff9800);
+                transform: scale(0.9);
+            }
+            50% {
+                filter: drop-shadow(0 0 10px #ff5722) drop-shadow(0 0 20px #ff9800);
+                transform: scale(1.1);
+            }
+            100% {
+                filter: drop-shadow(0 0 5px #ff5722) drop-shadow(0 0 10px #ff9800);
+                transform: scale(0.9);
+            }
         }
 
         /* 動畫 */
@@ -270,8 +297,13 @@
                 
                 <div id="total-score-container">
                     <h3>總進度</h3>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" id="score-progress-bar"></div>
+                    <div class="progress-bar-and-flame">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="score-progress-bar"></div>
+                        </div>
+                        <div class="flame-icon">
+                            <img src="https://i.imgur.com/6287a5.png" alt="火焰圖標">
+                        </div>
                     </div>
                     <div id="current-score-text"></div>
                 </div>
