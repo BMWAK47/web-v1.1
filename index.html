@@ -7,8 +7,9 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
+        /* 將內文字體恢復正常，但標題和按鈕保留科幻感字體 */
         body {
-            font-family: 'Orbitron', Arial, sans-serif;
+            font-family: 'Microsoft JhengHei', '微軟正黑體', Arial, sans-serif;
             background: #1a1a2e;
             color: #e0e0e0;
             margin: 0;
@@ -29,12 +30,13 @@
             animation: fadeIn 1.5s ease-in-out;
         }
 
-        /* 標題與段落的發光效果 */
-        h1, h2, p {
+        /* 標題與段落的發光效果，使用科幻字體 */
+        h1, h2, #question-title {
+            font-family: 'Orbitron', sans-serif;
             text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
         }
 
-        /* 按鈕基礎樣式 */
+        /* 按鈕基礎樣式，使用科幻字體 */
         button, .question-btn {
             background: linear-gradient(45deg, #007bff, #8a2be2);
             color: white;
@@ -64,7 +66,7 @@
             border-radius: 8px;
             margin-top: 10px;
             box-shadow: inset 0 0 8px rgba(0, 255, 255, 0.3);
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Microsoft JhengHei', '微軟正黑體', Arial, sans-serif;
         }
         #login-form input:focus {
             outline: none;
@@ -75,8 +77,17 @@
         .question-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
+            /* 修正：每行顯示6個按鈕 */
+            gap: 15px; 
             margin-top: 20px;
+            justify-content: center;
+        }
+        .question-btn {
+            flex: 0 0 calc(16.666% - 15px); /* 100% / 6 = 16.666% */
+            max-width: calc(16.666% - 15px);
+            text-align: center;
+            text-decoration: none;
+            padding: 15px 10px;
         }
         .question-btn.answered {
             background: linear-gradient(45deg, #28a745, #1d9539);
@@ -120,7 +131,7 @@
             border-radius: 8px;
             box-shadow: inset 0 0 8px rgba(0, 255, 255, 0.3);
             resize: vertical;
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Microsoft JhengHei', '微軟正黑體', Arial, sans-serif;
         }
 
         /* 排名列表樣式 */
@@ -184,6 +195,22 @@
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
+        /* 彈性佈局調整 */
+        .header, .nav-buttons, .font-size-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .nav-buttons {
+            flex-direction: row;
+            justify-content: center;
+        }
+        .header h1 { margin-bottom: 5px; }
+        .header p { margin-top: 0; }
+        #questions-view h2, #ranking-view h2 { text-align: center; }
+        
     </style>
 </head>
 <body>
@@ -216,14 +243,8 @@
 
             <div id="questions-view">
                 <h2>系統數據流</h2>
-                <div class="question-list" id="question-list-container"></div>
-            </div>
-
-            <div id="quiz-view" style="display: none;">
-                <h2 id="question-title"></h2>
-                <p id="question-text"></p>
                 
-                <div id="total-score-container" style="display: none;">
+                <div id="total-score-container">
                     <h3>總進度</h3>
                     <div class="progress-bar-container">
                         <div class="progress-bar" id="score-progress-bar"></div>
@@ -231,6 +252,12 @@
                     <div id="current-score-text"></div>
                 </div>
 
+                <div class="question-list" id="question-list-container"></div>
+            </div>
+
+            <div id="quiz-view" style="display: none;">
+                <h2 id="question-title"></h2>
+                <p id="question-text"></p>
                 <div id="score-info"></div>
                 <div class="options" id="options-container"></div>
                 <div id="attempts-info"></div>
@@ -251,7 +278,7 @@
         let username = '';
         let userStatus = { responses: {}, attempts: {}, totalScore: 0 };
         let currentQuestion = null;
-        let maxPossibleScore = 0; // 新增：計算所有題目的總滿分
+        let maxPossibleScore = 0;
 
         const welcomeSection = document.getElementById('welcome-section');
         const mainQuizSection = document.getElementById('main-quiz-section');
@@ -330,7 +357,7 @@
             quizView.style.display = 'none';
             rankingView.style.display = 'none';
             questionsView.style.display = 'block';
-            totalScoreContainer.style.display = 'flex';
+            totalScoreContainer.style.display = 'block'; // 修正：顯示進度條容器
             updateProgressBar();
             renderQuestionList();
         }
@@ -361,7 +388,6 @@
                     return;
                 }
                 questions = data;
-                // 計算總滿分
                 maxPossibleScore = questions.reduce((sum, q) => sum + (q['滿分'] || 1), 0);
                 renderQuestionList();
             });
@@ -514,6 +540,7 @@
                         }
                         
                         renderQuestionList();
+                        updateProgressBar(); // 修正：提交後更新進度條
                         resolve();
                     } else {
                         alert('提交答案失敗: ' + result.error);
@@ -543,7 +570,6 @@
             });
         }
         
-        // 新增：更新得分進度條的函式
         function updateProgressBar() {
             if (maxPossibleScore > 0) {
                 const percentage = (userStatus.totalScore / maxPossibleScore) * 100;
