@@ -98,11 +98,90 @@
             text-decoration: none;
             padding: 15px 10px;
         }
+        /* 答對後變為綠色 */
         .question-btn.answered {
             background: linear-gradient(45deg, #28a745, #1d9539);
             box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
         }
 
+        /* ------------------------------------- */
+        /* 新增的 Glitch 效果 */
+        /* ------------------------------------- */
+        @keyframes glitch-text {
+            0% { text-shadow: 2px 0 #ff0000; transform: translate(0); }
+            10% { text-shadow: -2px -2px #00ff00; transform: translate(2px, 2px); }
+            20% { text-shadow: -2px 0 #ff0000; transform: translate(-2px, 0); }
+            30% { text-shadow: 2px 1px #0000ff; transform: translate(2px, 1px); }
+            40% { text-shadow: -1px -1px #ff0000; transform: translate(-1px, -1px); }
+            50% { text-shadow: -2px 2px #00ff00; transform: translate(-2px, 2px); }
+            60% { text-shadow: 1px 0 #0000ff; transform: translate(1px, 0); }
+            70% { text-shadow: 2px -1px #ff0000; transform: translate(2px, -1px); }
+            80% { text-shadow: -1px 2px #00ff00; transform: translate(-1px, 2px); }
+            90% { text-shadow: 1px 1px #0000ff; transform: translate(1px, 1px); }
+            100% { text-shadow: 0 0 #ff0000; transform: translate(0); }
+        }
+        
+        .glitch-container {
+            position: relative;
+            color: #ff0000;
+        }
+        .glitch-container::before,
+        .glitch-container::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            color: #ff0000;
+            opacity: 0.8;
+            animation: glitch-text 2.5s infinite linear alternate-reverse;
+        }
+        .glitch-container::after {
+            color: #00ff00;
+            left: 2px;
+            text-shadow: -2px 0 #ff0000;
+            animation: glitch-text 3s infinite linear alternate-reverse;
+        }
+
+        .question-list.glitch .question-btn {
+            font-family: 'Consolas', 'Courier New', monospace;
+            background: transparent;
+            border: 1px solid #ff0000;
+            box-shadow: none;
+            color: #ff0000;
+            display: block;
+            white-space: pre-wrap;
+            text-align: left;
+            padding: 10px;
+        }
+        .question-list.glitch .question-btn .glitch-line {
+            display: block;
+            line-height: 1.2;
+            animation: none;
+            color: #ff0000;
+        }
+        
+        .question-list.glitch .question-btn:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: #00ffff;
+            color: #00ffff;
+        }
+        .question-list.glitch .question-btn:hover .glitch-line {
+            color: #00ffff;
+        }
+
+        #questions-view.glitch-fixed .question-list {
+             animation: none;
+        }
+
+        #quiz-view.glitch-fixed h2, #quiz-view.glitch-fixed p {
+            color: #00ff00; /* 答對後變為綠色 */
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+        }
+        
         .options div {
             background: #3a3a54;
             padding: 15px;
@@ -191,7 +270,7 @@
         .progress-bar {
             height: 100%;
             width: 0;
-            background: linear-gradient(90deg, #ff416c, #ff4b2b); /* 紅色漸層 */
+            background: linear-gradient(90deg, #ff416c, #ff4b2b);
             transition: width 0.8s cubic-bezier(0.25, 0.1, 0.25, 1), background 0.8s ease;
             position: relative;
             border-radius: 15px;
@@ -199,9 +278,9 @@
 
         /* 當分數超過 16.6 分時的紫色進度條樣式 */
         .progress-bar.purple {
-            background: linear-gradient(90deg, #8a2be2, #4b0082); /* 紫色漸層 */
-            box-shadow: 0 0 15px rgba(138, 43, 226, 0.6); /* 新增發光效果 */
-            animation: pulse-purple 1.5s infinite; /* 新增脈衝動態效果 */
+            background: linear-gradient(90deg, #8a2be2, #4b0082);
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.6);
+            animation: pulse-purple 1.5s infinite;
         }
         
         @keyframes pulse-purple {
@@ -503,17 +582,38 @@
 
         function renderQuestionList() {
             questionListContainer.innerHTML = '';
+            questionListContainer.classList.add('glitch');
             questions.forEach(q => {
                 const btn = document.createElement('a');
                 btn.href = '#';
-                btn.textContent = `題目 ${q['題號']}`;
                 btn.className = 'question-btn';
+                
                 if (userStatus.responses[q['題號']] && userStatus.responses[q['題號']].score > 0) {
                     btn.classList.add('answered');
+                    btn.textContent = `題目 ${q['題號']}`;
+                } else {
+                    // 隨機產生 4-6 行錯誤代碼
+                    const numLines = Math.floor(Math.random() * 3) + 4;
+                    for (let i = 0; i < numLines; i++) {
+                        const line = document.createElement('span');
+                        line.className = 'glitch-line';
+                        line.textContent = `Error[${Math.floor(Math.random() * 9999)}]: ${generateRandomString(Math.floor(Math.random() * 20) + 10)}`;
+                        btn.appendChild(line);
+                    }
                 }
+                
                 btn.onclick = () => showQuestion(q);
                 questionListContainer.appendChild(btn);
             });
+        }
+        
+        function generateRandomString(length) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:",.<>/?';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
         }
 
         function showQuestion(question) {
@@ -521,11 +621,26 @@
             rankingView.style.display = 'none';
             quizView.style.display = 'block';
             totalScoreContainer.style.display = 'none';
+            
+            // 清除之前的類別
+            quizView.classList.remove('glitch-fixed');
 
             currentQuestion = question;
-            questionTitle.textContent = `第 ${question['題號']} 題`;
-            questionText.textContent = question['題目'];
-            
+            const isAnsweredCorrectly = userStatus.responses[question['題號']] && userStatus.responses[question['題號']].score > 0;
+
+            if (isAnsweredCorrectly) {
+                 // 如果已答對，直接顯示修復後的樣式
+                 questionTitle.textContent = `第 ${question['題號']} 題`;
+                 questionText.textContent = question['題目'];
+                 quizView.classList.add('glitch-fixed');
+            } else {
+                // 未答對，顯示故障樣式
+                questionTitle.textContent = `第 ${question['題號']} 題`;
+                questionText.textContent = question['題目'];
+                questionTitle.innerHTML = `<span class="glitch-container" data-text="${questionTitle.textContent}">${questionTitle.textContent}</span>`;
+                questionText.innerHTML = `<span class="glitch-container" data-text="${questionText.textContent}">${questionText.textContent}</span>`;
+            }
+           
             const fullScore = question['滿分'] || 1;
             scoreInfo.textContent = `這題滿分：${fullScore} 分`;
             
@@ -644,7 +759,14 @@
                         userStatus.responses[currentQuestion['題號']].score = result.score;
                         userStatus.totalScore = result.totalScore;
                         
-                        const attemptsLeft = currentQuestion['作答次數限制'] - userStatus.attempts[currentQuestion['題號']];
+                        // 答對後，將題目頁面變為綠色
+                        if (result.score > 0) {
+                            quizView.classList.add('glitch-fixed');
+                            questionTitle.innerHTML = `第 ${currentQuestion['題號']} 題`;
+                            questionText.innerHTML = currentQuestion['題目'];
+                        }
+                        
+                        const attemptsLeft = currentQuestion['作答次數限制'] - (userStatus.attempts[currentQuestion['題號']] || 0);
                         attemptsInfo.textContent = `剩餘作答次數: ${attemptsLeft}`;
                         submitBtn.disabled = attemptsLeft <= 0;
                         if (submitBtn.disabled) {
@@ -686,7 +808,6 @@
                 scoreProgressBar.style.width = percentage + '%';
                 currentScoreText.textContent = `總分：${userStatus.totalScore} / ${maxPossibleScore}`;
 
-                // 檢查分數是否超過 16.6 分
                 if (userStatus.totalScore > 16.6) {
                     scoreProgressBar.classList.add('purple');
                 } else {
