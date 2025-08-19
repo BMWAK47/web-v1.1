@@ -120,49 +120,6 @@
             color: #00ffff;
         }
 
-        /* ------------------------------------- */
-        /* 新增的 Glitch 效果 */
-        /* ------------------------------------- */
-        @keyframes glitch-text {
-            0% { text-shadow: 2px 0 #ff0000; transform: translate(0); }
-            10% { text-shadow: -2px -2px #00ff00; transform: translate(2px, 2px); }
-            20% { text-shadow: -2px 0 #ff0000; transform: translate(-2px, 0); }
-            30% { text-shadow: 2px 1px #0000ff; transform: translate(2px, 1px); }
-            40% { text-shadow: -1px -1px #ff0000; transform: translate(-1px, -1px); }
-            50% { text-shadow: -2px 2px #00ff00; transform: translate(-2px, 2px); }
-            60% { text-shadow: 1px 0 #0000ff; transform: translate(1px, 0); }
-            70% { text-shadow: 2px -1px #ff0000; transform: translate(2px, -1px); }
-            80% { text-shadow: -1px 2px #00ff00; transform: translate(-1px, 2px); }
-            90% { text-shadow: 1px 1px #0000ff; transform: translate(1px, 1px); }
-            100% { text-shadow: 0 0 #ff0000; transform: translate(0); }
-        }
-        
-        .glitch-container {
-            position: relative;
-            color: #e0e0e0; /* 題幹白色字體 */
-        }
-        .glitch-container::before,
-        .glitch-container::after {
-            content: attr(data-text);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            opacity: 0.8;
-            animation: glitch-text 2.5s infinite linear alternate-reverse;
-        }
-        .glitch-container::before {
-            color: #ff0000; /* 紅色錯誤疊影 */
-        }
-        .glitch-container::after {
-            color: #00ff00; /* 綠色錯誤疊影 */
-            left: 2px;
-            text-shadow: -2px 0 #ff0000;
-            animation: glitch-text 3s infinite linear alternate-reverse;
-        }
-
         /* 故障代碼按鈕的樣式 */
         .question-btn.glitch {
             font-family: 'Roboto Mono', monospace;
@@ -182,20 +139,12 @@
             border-color: #00ffff;
             color: #00ffff;
         }
-
+        
         /* 答對後，題目頁面的標題和內文變綠 */
-        #quiz-view.glitch-fixed h2, #quiz-view.glitch-fixed p {
+        #quiz-view.answered h2, #quiz-view.answered p {
             color: #00ff00; 
             text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
             animation: none; /* 移除閃爍 */
-        }
-        #quiz-view.glitch-fixed .glitch-container {
-            color: #00ff00;
-            animation: none;
-        }
-        #quiz-view.glitch-fixed .glitch-container::before, 
-        #quiz-view.glitch-fixed .glitch-container::after {
-            content: none; /* 移除偽元素 */
         }
         
         .options div {
@@ -607,11 +556,11 @@
                     btn.textContent = `File_${q['題號']}.js`;
                 } else {
                     btn.classList.add('glitch');
-                    const numLines = Math.floor(Math.random() * 3) + 4;
+                    // 減少錯誤行數，並在開頭包含題號
+                    const numLines = Math.floor(Math.random() * 2) + 1; // 1 或 2 行
                     let errorContent = '';
                     for (let i = 0; i < numLines; i++) {
-                        // 每行錯誤代碼都包含紅色的 ERROR
-                        errorContent += `ERROR[${Math.floor(Math.random() * 9999)}]: ${generateRandomString(Math.floor(Math.random() * 20) + 10)}\n`;
+                        errorContent += `ERROR[${q['題號']}]: ${generateRandomString(Math.floor(Math.random() * 20) + 10)}\n`;
                     }
                     btn.textContent = errorContent.trim();
                 }
@@ -636,26 +585,20 @@
             quizView.style.display = 'block';
             totalScoreContainer.style.display = 'none';
             
-            quizView.classList.remove('glitch-fixed');
+            quizView.classList.remove('answered');
 
             currentQuestion = question;
             const isAnsweredCorrectly = userStatus.responses[question['題號']] && userStatus.responses[question['題號']].score > 0;
 
             if (isAnsweredCorrectly) {
                  // 答對，顯示修復後的綠色狀態
-                 questionTitle.textContent = `第 ${question['題號']} 題`;
-                 questionText.textContent = question['題目'];
-                 quizView.classList.add('glitch-fixed');
-            } else {
-                // 未答對，顯示 Glitch 效果
-                questionTitle.textContent = `第 ${question['題號']} 題`;
-                questionText.textContent = question['題目'];
-                
-                // 應用 Glitch 效果，但文字本身是白色
-                questionTitle.innerHTML = `<span class="glitch-container" data-text="${questionTitle.textContent}">${questionTitle.textContent}</span>`;
-                questionText.innerHTML = `<span class="glitch-container" data-text="${questionText.textContent}">${questionText.textContent}</span>`;
+                 quizView.classList.add('answered');
             }
            
+            // 題目標題和內容都直接顯示，不應用閃爍效果
+            questionTitle.textContent = `第 ${question['題號']} 題`;
+            questionText.textContent = question['題目'];
+            
             const fullScore = question['滿分'] || 1;
             scoreInfo.textContent = `這題滿分：${fullScore} 分`;
             
@@ -775,9 +718,7 @@
                         userStatus.totalScore = result.totalScore;
                         
                         if (result.score > 0) {
-                            quizView.classList.add('glitch-fixed');
-                            questionTitle.textContent = `第 ${currentQuestion['題號']} 題`;
-                            questionText.textContent = currentQuestion['題目'];
+                            quizView.classList.add('answered');
                         }
                         
                         const attemptsLeft = currentQuestion['作答次數限制'] - (userStatus.attempts[currentQuestion['題號']] || 0);
